@@ -12,9 +12,13 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
-var Bind = flag.String("bind", "localhost:8080", "hostname:port to bind webserver to")
+var Bind = flag.String("bind", "localhost:8080", "hostname:port to bind webserver to; empty to not listen")
+var BindTLS = flag.String("tls_bind", "", "hostname:port to bind TLS webserver to; empty to not listen")
+var CertFileTLS = flag.String("tls_certfile", ".tls.crt", "Certificate file for TLS")
+var KeyFileTLS = flag.String("tls_keyfile", ".tls.key", "Key file for TLS")
 
 func Serve(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path[0] != '/' {
@@ -38,6 +42,20 @@ func Serve(w http.ResponseWriter, r *http.Request) {
 func main() {
 	flag.Parse()
 	http.HandleFunc("/", Serve)
-	err := http.ListenAndServe(*Bind, nil)
-	log.Fatalf("Cannot ListenAndServe: %v: %q", err, *Bind)
+
+	if *Bind != "" {
+		go func() {
+			log.Printf("Plain Listening on %q", *Bind)
+			err := http.ListenAndServe(*Bind, nil)
+			log.Fatalf("Cannot ListenAndServe: %v: %q", err, *Bind)
+		}()
+	}
+	if *BindTLS != "" {
+		go func() {
+			log.Printf("TLS Listening on %q", *BindTLS)
+			err := http.ListenAndServeTLS(*BindTLS, *CertFileTLS, *KeyFileTLS, nil)
+			log.Fatalf("Cannot ListenAndServeTLS: %v: %q", err, *Bind)
+		}()
+	}
+	time.Sleep(999999999 * time.Second)
 }
