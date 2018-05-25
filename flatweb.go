@@ -43,7 +43,9 @@ func main() {
 	flag.Parse()
 	http.HandleFunc("/", Serve)
 
+	var useful bool
 	if *Bind != "" {
+		useful = true
 		go func() {
 			log.Printf("Plain Listening on %q", *Bind)
 			err := http.ListenAndServe(*Bind, nil)
@@ -51,11 +53,15 @@ func main() {
 		}()
 	}
 	if *BindTLS != "" {
+		useful = true
 		go func() {
 			log.Printf("TLS Listening on %q", *BindTLS)
 			err := http.ListenAndServeTLS(*BindTLS, *CertFileTLS, *KeyFileTLS, nil)
 			log.Fatalf("Cannot ListenAndServeTLS: %v: %q", err, *Bind)
 		}()
+	}
+	if !useful {
+		log.Fatal("Nothing useful is being done.")
 	}
 	time.Sleep(999999999 * time.Second)
 }
