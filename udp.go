@@ -87,7 +87,7 @@ func main() {
 func HexDump(bb []byte) {
 	for i := 0; i < len(bb); i += 16 {
 		fmt.Printf("%4d: ", i)
-		for j := 0; j < 16 && i+j < len(bb); j++ {
+		for j := 0; j < 16; j++ {
 			if i+j < len(bb) {
 				c := bb[i+j]
 				fmt.Printf(" %02x", c)
