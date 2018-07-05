@@ -90,7 +90,7 @@ func HexDump(bb []byte) {
 			c := bb[i+j]
 			fmt.Printf(" %02x", c)
 			if j&3 == 3 {
-				fmt.Printf(" ", c)
+				fmt.Printf(" ")
 			}
 		}
 		for j := 0; j < 16 && i+j < len(bb); j++ {
