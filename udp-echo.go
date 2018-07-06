@@ -46,7 +46,7 @@ func main() {
 			log.Fatalf("cannot ReadFromUDP: %v", err)
 		}
 		if len(bb) > 10 {
-			t = int64(b[2]) + int64((b[3]<<8)) + int64((b[4]<<16)) + int64((b[5]<<24)) + int64((b[6]<<32)) + int64((b[7]<<40))
+			t = int64(bb[2]) + int64((bb[3]<<8)) + int64((bb[4]<<16)) + int64((bb[5]<<24)) + int64((bb[6]<<32)) + int64((bb[7]<<40))
 		}
 
 		log.Printf("Got %d bytes from %v .... [[[ %d ]]]", sz, addy, t - prev)
