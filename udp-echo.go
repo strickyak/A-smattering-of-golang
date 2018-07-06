@@ -51,7 +51,7 @@ func main() {
 		}
 
 		realt = time.Now().UnixNano()
-		log.Printf("Got %d bytes from %v .... [[[ %d ]]]", sz, addy, t - prev, realt - realprev)
+		log.Printf("Got %d bytes from %v .... [[[ %d ]]] %d", sz, addy, t - prev, realt - realprev)
 		HexDump(bb[:sz])
 		prev = t
 		realprev = realt
