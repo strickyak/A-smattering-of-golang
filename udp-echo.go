@@ -47,11 +47,11 @@ func main() {
 			log.Fatalf("cannot ReadFromUDP: %v", err)
 		}
 		if len(bb) > 10 {
-			t = int64(bb[2]) + int64((bb[3]<<8)) + int64((bb[4]<<16)) + int64((bb[5]<<24)) + int64((bb[6]<<32)) + int64((bb[7]<<40))
+			t = int64(uint64(bb[2]) + (uint64(bb[3]) << 8) + (uint64(bb[4]) << 16) + (uint64(bb[5]) << 24) + (uint64(bb[6]) << 32) + (uint64(bb[7]) << 40))
 		}
 
 		realt = time.Now().UnixNano()
-		log.Printf("Got %d bytes from %v .... [[[ %d ]]] %d", sz, addy, t - prev, realt - realprev)
+		log.Printf("Got %d bytes from %v .... [[[ %d ]]] %d", sz, addy, t-prev, realt-realprev)
 		HexDump(bb[:sz])
 		prev = t
 		realprev = realt
@@ -64,15 +64,19 @@ func main() {
 	}
 }
 
+var prevsend int64
+
 func DelayAndEcho(conn *net.UDPConn, destAddy *net.UDPAddr, bb []byte) {
 	time.Sleep(*Delay)
 
 	sz, err := conn.WriteToUDP(bb, destAddy)
+	t := time.Now().UnixNanos()
 	if err != nil {
 		log.Printf("cannot WriteToUDP to %v: %v", destAddy, err)
 	} else {
-		log.Printf("(Echo %d bytes of %d to %q)", sz, len(bb), destAddy.String())
+		log.Printf("(Echo %d bytes of %d to %q) %d", sz, len(bb), destAddy.String(), t-prevsend)
 	}
+	prevsend = t
 }
 
 func HexDump(bb []byte) {
