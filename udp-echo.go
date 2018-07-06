@@ -73,7 +73,7 @@ func main() {
 		}
 
 		if audio != nil {
-			_, err := audio.Write(bb[24:])
+			_, err := audio.Write(bb[24:sz])
 			if err != nil {
 				log.Fatalf("cannot write audio: %v", err)
 			}
