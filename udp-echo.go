@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
 	"time"
 )
 
@@ -39,6 +38,8 @@ func main() {
 
 	var prev int64
 	var t int64
+	var realprev int64
+	var realt int64
 	for {
 		bb := make([]byte, 3*512)
 		sz, addy, err := conn.ReadFromUDP(bb)
@@ -49,9 +50,11 @@ func main() {
 			t = int64(bb[2]) + int64((bb[3]<<8)) + int64((bb[4]<<16)) + int64((bb[5]<<24)) + int64((bb[6]<<32)) + int64((bb[7]<<40))
 		}
 
-		log.Printf("Got %d bytes from %v .... [[[ %d ]]]", sz, addy, t - prev)
+		realt = time.Now().UnixNano()
+		log.Printf("Got %d bytes from %v .... [[[ %d ]]]", sz, addy, t - prev, realt - realprev)
+		HexDump(bb[:sz])
 		prev = t
-		//HexDump(bb[:sz])
+		realprev = realt
 
 		if sz > 24 && bb[0] == 22 && bb[1] == 202 {
 			go DelayAndEcho(conn, addy, bb[:sz])
@@ -101,5 +104,5 @@ func HexDump(bb []byte) {
 		}
 		fmt.Fprintf(w, "\n")
 	}
-	os.Stdout.Write(w.Bytes())
+	log.Println(w.String())
 }
