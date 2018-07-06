@@ -3,11 +3,13 @@
 package main
 
 import (
+	"bytes"
 	//"crypto/rand"
 	"flag"
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"time"
 )
 
@@ -64,30 +66,33 @@ func DelayAndEcho(conn *net.UDPConn, destAddy *net.UDPAddr, bb []byte) {
 }
 
 func HexDump(bb []byte) {
+	w := bytes.NewBuffer(nil)
+
 	for i := 0; i < len(bb); i += 16 {
-		fmt.Printf("%4d: ", i)
+		fmt.Fprintf(w, "%4d: ", i)
 		for j := 0; j < 16; j++ {
 			if i+j < len(bb) {
 				c := bb[i+j]
-				fmt.Printf(" %02x", c)
+				fmt.Fprintf(w, " %02x", c)
 			} else {
-				fmt.Printf("   ")
+				fmt.Fprintf(w, "   ")
 			}
 			if j&3 == 3 {
-				fmt.Printf(" ")
+				fmt.Fprintf(w, " ")
 			}
 		}
-		fmt.Printf("  ")
+		fmt.Fprintf(w, "  ")
 		for j := 0; j < 16 && i+j < len(bb); j++ {
 			c := bb[i+j]
 			if ' ' <= c && c <= '~' {
-				fmt.Printf("%c", c)
+				fmt.Fprintf(w, "%c", c)
 			} else if c >= 128 {
-				fmt.Printf("^")
+				fmt.Fprintf(w, "^")
 			} else {
-				fmt.Printf(".")
+				fmt.Fprintf(w, ".")
 			}
 		}
-		fmt.Printf("\n")
+		fmt.Fprintf(w, "\n")
 	}
+	os.Stdout.Write(w.Bytes())
 }
