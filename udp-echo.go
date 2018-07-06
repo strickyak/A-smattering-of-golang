@@ -9,11 +9,13 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"time"
 )
 
 var Listen = flag.String("listen", ":18512", "listen on `:port`")
 var Delay = flag.Duration("delay", 1.0*time.Second, "seconds to delay echo")
+var Audio = flag.String("audio", "", "audio filename to capture")
 
 func sum(bb []byte) uint64 {
 	var z uint64
@@ -36,6 +38,14 @@ func main() {
 		log.Fatalf("cannot open socket: %v", err)
 	}
 
+	var audio *os.File
+	if *Audio != "" {
+		audio, err = os.Create(*Audio)
+		if err != nil {
+			log.Fatalf("cannot create audio file %q: %v", *Audio, err)
+		}
+	}
+
 	var prev int64
 	var t int64
 	var realprev int64
@@ -52,7 +62,7 @@ func main() {
 
 		realt = time.Now().UnixNano()
 		log.Printf("Got %d bytes from %v .... [[[ %d ]]] %d", sz, addy, t-prev, realt-realprev)
-		HexDump(bb[:sz])
+		// HexDump(bb[:sz])
 		prev = t
 		realprev = realt
 
@@ -60,6 +70,13 @@ func main() {
 			go DelayAndEcho(conn, addy, bb[:sz])
 		} else {
 			log.Printf("Invalid Packet: %d, %d, %d", sz, bb[0], bb[1])
+		}
+
+		if audio != nil {
+			_, err := audio.Write(bb[24:])
+			if err != nil {
+				log.Fatalf("cannot write audio: %v", err)
+			}
 		}
 	}
 }
