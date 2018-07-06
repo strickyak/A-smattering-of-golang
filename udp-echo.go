@@ -37,14 +37,21 @@ func main() {
 		log.Fatalf("cannot open socket: %v", err)
 	}
 
+	var prev int64
+	var t int64
 	for {
 		bb := make([]byte, 3*512)
 		sz, addy, err := conn.ReadFromUDP(bb)
 		if err != nil {
 			log.Fatalf("cannot ReadFromUDP: %v", err)
 		}
-		log.Printf("Got %d bytes from %v", sz, addy)
-		HexDump(bb[:sz])
+		if len(bb) > 10 {
+			t = int64(b[2]) + int64((b[3]<<8)) + int64((b[4]<<16)) + int64((b[5]<<24)) + int64((b[6]<<32)) + int64((b[7]<<40))
+		}
+
+		log.Printf("Got %d bytes from %v .... [[[ %d ]]]", sz, addy, t - prev)
+		prev = t
+		//HexDump(bb[:sz])
 
 		if sz > 24 && bb[0] == 22 && bb[1] == 202 {
 			go DelayAndEcho(conn, addy, bb[:sz])
