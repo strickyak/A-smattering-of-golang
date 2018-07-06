@@ -70,7 +70,7 @@ func DelayAndEcho(conn *net.UDPConn, destAddy *net.UDPAddr, bb []byte) {
 	time.Sleep(*Delay)
 
 	sz, err := conn.WriteToUDP(bb, destAddy)
-	t := time.Now().UnixNanos()
+	t := time.Now().UnixNano()
 	if err != nil {
 		log.Printf("cannot WriteToUDP to %v: %v", destAddy, err)
 	} else {
